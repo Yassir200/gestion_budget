@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Check, Home, Bus, Utensils, Gamepad2, ShoppingCart, Heart, Briefcase, GraduationCap } from 'lucide-react';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import { useTheme } from '../context/ThemeContext';
 
-// 💡 1. Configuration avec les vraies couleurs (Hex) et les noms d'icônes
+// 💡 1. Configuration avec les vraies couleurs (Hex) et les noms d'icônes intacts
 const CATEGORIES_SUGGEREES = [
   { nom: "Alimentation", icone: "Utensils", couleur: "#eab308", type: "depense" }, // Jaune
   { nom: "Transport", icone: "Bus", couleur: "#0ea5e9", type: "depense" }, // Bleu clair
@@ -35,6 +36,8 @@ export default function WelcomeOnboarding({ onComplete }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCats, setSelectedCats] = useState(CATEGORIES_SUGGEREES);
   const [isSaving, setIsSaving] = useState(false);
+  
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const checkCategories = async () => {
@@ -62,7 +65,15 @@ export default function WelcomeOnboarding({ onComplete }) {
 
   const handleSave = async () => {
     if (selectedCats.length === 0) {
-      return Swal.fire({ icon: 'warning', title: 'Oups', text: 'Sélectionnez au moins une catégorie.' });
+      return Swal.fire({ 
+        icon: 'warning', 
+        title: 'Oups', 
+        text: 'Sélectionnez au moins une catégorie.',
+        background: isDarkMode ? '#0B1120' : '#ffffff',
+        color: isDarkMode ? '#fff' : '#1c1917',
+        confirmButtonColor: isDarkMode ? '#06b6d4' : '#4a3728',
+        borderRadius: '1.5rem'
+      });
     }
 
     setIsSaving(true);
@@ -87,11 +98,21 @@ export default function WelcomeOnboarding({ onComplete }) {
         title: 'Espace configuré !',
         text: 'Vos catégories sont prêtes.',
         timer: 3000,
-        showConfirmButton: false
+        showConfirmButton: false,
+        background: isDarkMode ? '#0B1120' : '#ffffff',
+        color: isDarkMode ? '#fff' : '#1c1917',
+        borderRadius: '1.5rem'
       });
       
     } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Erreur', text: "Impossible de créer les catégories." });
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'Erreur', 
+        text: "Impossible de créer les catégories.",
+        background: isDarkMode ? '#0B1120' : '#ffffff',
+        color: isDarkMode ? '#fff' : '#1c1917',
+        borderRadius: '1.5rem'
+      });
     } finally {
       setIsSaving(false);
     }
@@ -100,22 +121,23 @@ export default function WelcomeOnboarding({ onComplete }) {
   if (isLoading || !isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 transition-all duration-500">
-      <div className="bg-white dark:bg-slate-800 w-full max-w-3xl rounded-[2rem] shadow-2xl overflow-hidden animate-fade-in-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 dark:bg-[#05050A]/80 backdrop-blur-md p-4 transition-all duration-500">
+      <div className="bg-[#FDFBF7] dark:bg-[#0B1120] border border-stone-200 dark:border-white/10 w-full max-w-3xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-fade-in-up transition-colors duration-500">
         
-        <div className="bg-blue-600 px-8 py-10 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        {/* HEADER MODALE ADAPTATIF */}
+        <div className="bg-gradient-to-br from-[#4a3728] to-[#8b5a2b] dark:from-cyan-900/60 dark:to-purple-900/60 px-8 py-10 text-center relative overflow-hidden border-b border-[#4a3728]/10 dark:border-white/5 transition-colors duration-500">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 dark:opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
           <div className="relative z-10 flex flex-col items-center">
-            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm mb-4">
+            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md mb-4 shadow-sm">
               <Sparkles size={32} className="text-white" />
             </div>
-            <h2 className="text-3xl font-extrabold text-white mb-2">Bienvenue sur Adawn !</h2>
-            <p className="text-blue-100 text-lg">Configurons votre espace en sélectionnant vos catégories principales.</p>
+            <h2 className="text-3xl font-extrabold text-white mb-2 tracking-tight">Bienvenue sur Adawn !</h2>
+            <p className="text-white/80 dark:text-cyan-100/80 text-lg font-medium">Configurons votre espace en sélectionnant vos catégories principales.</p>
           </div>
         </div>
 
         <div className="p-8">
-          <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 text-center">
+          <p className="text-stone-600 dark:text-slate-400 font-medium mb-6 text-center text-sm">
             Cliquez pour sélectionner ou désélectionner (Vous pourrez les modifier plus tard).
           </p>
           
@@ -126,26 +148,26 @@ export default function WelcomeOnboarding({ onComplete }) {
                 <button
                   key={index}
                   onClick={() => toggleCategory(cat)}
-                  className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 ${
+                  className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 ${
                     isSelected 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 scale-105 shadow-md' 
-                    : 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-blue-300 dark:hover:border-blue-700 opacity-70 hover:opacity-100'
+                    ? 'border-[#4a3728] bg-[#4a3728]/5 dark:border-cyan-500 dark:bg-cyan-500/10 scale-105 shadow-md dark:shadow-[0_0_15px_rgba(6,182,212,0.2)]' 
+                    : 'border-stone-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] hover:border-[#4a3728]/50 dark:hover:border-cyan-500/50 opacity-70 hover:opacity-100'
                   }`}
                 >
                   {isSelected && (
-                    <div className="absolute -top-2 -right-2 bg-blue-600 text-white p-1 rounded-full border-2 border-white dark:border-slate-800">
+                    <div className="absolute -top-2 -right-2 bg-[#4a3728] dark:bg-cyan-500 text-white p-1 rounded-full border-2 border-[#FDFBF7] dark:border-[#0B1120] shadow-sm">
                       <Check size={14} strokeWidth={4} />
                     </div>
                   )}
                   
                   {/* 💡 3. Utilisation de la vraie couleur (style={{backgroundColor}}) et de la vraie icône */}
                   <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-inner"
+                    className="w-12 h-12 rounded-[1rem] flex items-center justify-center mb-3 shadow-md"
                     style={{ backgroundColor: cat.couleur }}
                   >
                     {renderIcon(cat.icone)}
                   </div>
-                  <span className={`font-bold text-sm ${isSelected ? 'text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                  <span className={`font-bold text-sm transition-colors ${isSelected ? 'text-[#4a3728] dark:text-cyan-400' : 'text-stone-700 dark:text-slate-300'}`}>
                     {cat.nom}
                   </span>
                 </button>
@@ -153,11 +175,13 @@ export default function WelcomeOnboarding({ onComplete }) {
             })}
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-2">
             <button 
               onClick={handleSave} 
               disabled={isSaving}
-              className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-bold text-lg rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 disabled:opacity-50 flex justify-center items-center gap-2"
+              className={`w-full sm:w-auto px-10 py-4 text-white font-bold text-lg rounded-2xl flex justify-center items-center gap-2 transition-all shadow-lg ${
+                isSaving ? 'bg-stone-400 dark:bg-slate-600 cursor-not-allowed opacity-70' : 'bg-[#4a3728] hover:bg-[#5c4431] dark:bg-cyan-600 dark:hover:bg-cyan-500 dark:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:-translate-y-0.5'
+              }`}
             >
               {isSaving ? 'Configuration en cours...' : `Commencer avec ${selectedCats.length} catégories`}
             </button>

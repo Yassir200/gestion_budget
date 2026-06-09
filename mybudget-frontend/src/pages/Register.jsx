@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import { Mail, Lock, User, Wallet, ArrowRight, AlertCircle, CheckCircle2, KeyRound, ArrowLeft } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext'; 
+import { Mail, Lock, User, Wallet, ArrowRight, AlertCircle, CheckCircle2, KeyRound, ArrowLeft, Sun, Moon } from 'lucide-react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
 function Register() {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({ nom: '', email: '', motDePasse: '' });
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
-  
   const [etape, setEtape] = useState(1); 
   const [otpCode, setOtpCode] = useState('');
-  
-  const navigate = useNavigate();
 
   const handleInscription = async (e) => {
     e.preventDefault();
@@ -27,17 +28,8 @@ function Register() {
       setStatus({ type: 'success', message: 'Un code a été envoyé à votre email !' });
       setEtape(2); 
     } catch (err) {
-      // 💡 AFFICHAGE EXPLICITE SI L'EMAIL EST DÉJÀ PRIS OU INVALIDE
       const errorMessage = err.response?.data?.message || "Erreur lors de l'inscription.";
       setStatus({ type: 'error', message: errorMessage });
-      
-      // Optionnel : On peut aussi afficher une belle popup SweetAlert pour plus d'impact
-      MySwal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: errorMessage,
-          confirmButtonColor: '#3b82f6'
-      });
     } finally {
       setLoading(false);
     }
@@ -49,111 +41,144 @@ function Register() {
     setStatus({ type: '', message: '' });
 
     try {
-      await api.post('/utilisateurs/verify-email', { email: formData.email, otp: otpCode });
-      setStatus({ type: 'success', message: 'Email vérifié ! Redirection vers la connexion...' });
+      await api.post('/utilisateurs/verifier-email', { email: formData.email, code: otpCode });
       
       MySwal.fire({
-          icon: 'success',
-          title: 'Compte validé !',
-          showConfirmButton: false,
-          timer: 2000
+        icon: 'success',
+        title: 'Compte activé !',
+        text: 'Vous pouvez maintenant vous connecter.',
+        confirmButtonColor: isDarkMode ? '#06b6d4' : '#4a3728',
+        background: isDarkMode ? '#0B1120' : '#ffffff',
+        color: isDarkMode ? '#fff' : '#1c1917',
+        borderRadius: '1.5rem'
       });
-
-      setTimeout(() => navigate('/Login'), 2000);
+      navigate('/Login');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Code incorrect ou expiré.";
-      setStatus({ type: 'error', message: errorMessage });
-      
-      MySwal.fire({
-          icon: 'error',
-          title: 'Code invalide',
-          text: errorMessage,
-          confirmButtonColor: '#3b82f6'
-      });
+      setStatus({ type: 'error', message: err.response?.data?.message || 'Code invalide ou expiré.' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 font-sans p-4 transition-colors duration-300 relative">
+    <div className="min-h-screen bg-[#FDFBF7] dark:bg-[#05050A] text-stone-800 dark:text-slate-200 flex flex-col justify-center items-center relative overflow-hidden transition-colors duration-500">
       
-      {/* === BOUTON RETOUR À L'ACCUEIL === */}
-      <Link 
-        to="/" 
-        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors font-medium group"
-      >
-        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-        <span>Accueil</span>
-      </Link>
-      {/* =================================== */}
+      {/* LUEURS ARRIÈRE-PLAN SUBTILES */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-amber-500/5 dark:bg-purple-600/20 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/5 dark:bg-cyan-600/20 rounded-full blur-[120px]"></div>
+      </div>
 
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 p-8 sm:p-12 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700">
+      {/* HEADER FLOTTANT : BOUTON RETOUR ET THEME */}
+      <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20">
+        <button 
+          onClick={() => navigate('/')} 
+          className="flex items-center gap-2 px-4 py-2.5 bg-white/80 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl text-sm font-bold text-stone-700 dark:text-slate-300 hover:text-[#4a3728] dark:hover:text-cyan-400 hover:bg-stone-100 dark:hover:bg-white/10 transition-all shadow-sm dark:shadow-none"
+        >
+          <ArrowLeft size={18} /> <span className="hidden sm:inline">Retour à l'accueil</span>
+        </button>
+
+        <button 
+          onClick={toggleDarkMode} 
+          className="p-3 bg-white/80 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl text-stone-700 dark:text-slate-300 hover:text-cyan-400 hover:bg-stone-100 dark:hover:bg-white/10 transition-all shadow-sm dark:shadow-none"
+        >
+          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+      </div>
+
+      <div className="w-full max-w-md bg-white/90 dark:bg-white/[0.03] backdrop-blur-xl p-8 sm:p-10 rounded-[2.5rem] shadow-xl dark:shadow-2xl border border-stone-200/50 dark:border-white/10 relative z-10 transition-colors duration-500 mx-4 mt-12 mb-12">
         
-        {/* LOGO CLIQUABLE VERS L'ACCUEIL */}
-        <Link to="/" className="flex justify-center items-center gap-3 mb-8 text-blue-600 dark:text-blue-500 hover:opacity-80 transition-opacity">
-          <Wallet size={36} />
-          <span className="text-3xl font-extrabold text-slate-900 dark:text-white">Adawn</span>
-        </Link>
-
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-            {etape === 1 ? "Créer un compte" : "Vérifiez votre email"}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4a3728] to-[#8b5a2b] dark:from-cyan-400 dark:to-purple-600 flex items-center justify-center shadow-lg dark:shadow-[0_0_20px_rgba(6,182,212,0.4)] mb-6 transition-colors duration-500">
+            <Wallet className="text-white" size={32} />
+          </div>
+          <h2 className="text-3xl font-black text-stone-800 dark:text-white tracking-tight mb-2">
+            {etape === 1 ? 'Créer un compte' : 'Vérification'}
           </h2>
-          {etape === 1 ? (
-            <div className="text-slate-500 dark:text-slate-400 text-sm flex flex-col gap-1">
-              <span>Vous avez déjà un compte ? <Link to="/Login" className="text-blue-600 dark:text-blue-400 hover:underline font-bold">Connectez-vous</Link></span>
-            </div>
-          ) : (
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Nous avons envoyé un code à <br/><span className="font-bold text-slate-800 dark:text-slate-200">{formData.email}</span></p>
-          )}
+          <p className="text-stone-500 dark:text-slate-400 text-center font-medium">
+            {etape === 1 ? 'Rejoignez MyBudget gratuitement.' : 'Entrez le code envoyé par email.'}
+          </p>
         </div>
 
         {status.message && (
-          <div className={`flex items-center gap-3 p-4 rounded-xl mb-6 text-sm font-bold ${status.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'}`}>
-            {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />} 
-            {status.message}
+          <div className={`flex items-center gap-3 p-4 rounded-xl mb-6 text-sm font-bold ${status.type === 'error' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'}`}>
+            {status.type === 'error' ? <AlertCircle size={20} className="shrink-0" /> : <CheckCircle2 size={20} className="shrink-0" />}
+            <p>{status.message}</p>
           </div>
         )}
 
         {etape === 1 ? (
-          <form onSubmit={handleInscription} className="space-y-4" noValidate>
+          <form onSubmit={handleInscription} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nom complet</label>
+              <label className="block text-[11px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Nom complet</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input type="text" spellCheck="false" required value={formData.nom} onChange={(e) => setFormData({...formData, nom: e.target.value})} className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 outline-none font-medium text-slate-900 dark:text-white" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
+                  <User size={18} />
+                </div>
+                <input 
+                  type="text" 
+                  className="w-full pl-12 pr-4 py-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 outline-none transition-all text-stone-800 dark:text-white font-medium shadow-inner dark:shadow-none"
+                  placeholder="Yassir Ait Ichou"
+                  value={formData.nom}
+                  onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                  required
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Adresse Email</label>
+              <label className="block text-[11px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Adresse Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 outline-none font-medium text-slate-900 dark:text-white" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
+                  <Mail size={18} />
+                </div>
+                <input 
+                  type="email" 
+                  className="w-full pl-12 pr-4 py-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 outline-none transition-all text-stone-800 dark:text-white font-medium shadow-inner dark:shadow-none"
+                  placeholder="nom@exemple.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Mot de passe</label>
+              <label className="block text-[11px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input type="password" required placeholder="••••••••" value={formData.motDePasse} onChange={(e) => setFormData({...formData, motDePasse: e.target.value})} className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 outline-none font-medium text-slate-900 dark:text-white" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400 dark:text-slate-500">
+                  <Lock size={18} />
+                </div>
+                <input 
+                  type="password" 
+                  minLength="6"
+                  className="w-full pl-12 pr-4 py-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 outline-none transition-all text-stone-800 dark:text-white font-medium shadow-inner dark:shadow-none"
+                  placeholder="Minimum 6 caractères"
+                  value={formData.motDePasse}
+                  onChange={(e) => setFormData({ ...formData, motDePasse: e.target.value })}
+                  required
+                />
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full py-4 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold rounded-xl flex justify-center items-center gap-2 mt-8 transition-colors disabled:opacity-70">
-              {loading ? 'Création...' : <>S'inscrire <ArrowRight size={20} /></>}
+            <button 
+              type="submit" 
+              disabled={loading}
+              className={`w-full py-4 rounded-xl text-white font-bold text-base flex justify-center items-center gap-2 transition-all mt-6 shadow-lg ${
+                loading ? 'bg-stone-400 dark:bg-slate-600 cursor-not-allowed' : 'bg-[#4a3728] hover:bg-[#5c4431] dark:bg-cyan-600 dark:hover:bg-cyan-500 dark:shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+              }`}
+            >
+              {loading ? 'Création...' : (
+                <>S'inscrire <ArrowRight size={18} /></>
+              )}
             </button>
           </form>
-
         ) : (
-
-          <form onSubmit={handleVerification} className="space-y-4" noValidate>
+          <form onSubmit={handleVerification} className="space-y-5" noValidate>
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 text-center">Code à 6 chiffres</label>
+              <label className="block text-[11px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-widest mb-2 text-center">Code à 6 chiffres</label>
               <div className="relative">
-                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-500" size={20} />
                 <input 
                   type="text" 
                   required 
@@ -161,17 +186,29 @@ function Register() {
                   placeholder="123456"
                   value={otpCode} 
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))} 
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-500 outline-none font-bold text-center text-xl tracking-widest text-slate-900 dark:text-white" 
+                  className="w-full pl-12 pr-4 py-4 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 outline-none font-bold text-center text-2xl tracking-[0.5em] text-stone-800 dark:text-white shadow-inner dark:shadow-none" 
                 />
               </div>
             </div>
 
-            <button type="submit" disabled={loading || otpCode.length !== 6} className="w-full py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold rounded-xl flex justify-center items-center mt-6 transition-colors disabled:opacity-50">
+            <button 
+              type="submit" 
+              disabled={loading || otpCode.length !== 6} 
+              className={`w-full py-4 rounded-xl text-white font-bold text-base transition-all shadow-lg ${
+                loading || otpCode.length !== 6 ? 'bg-stone-400 dark:bg-slate-600 cursor-not-allowed' : 'bg-[#4a3728] hover:bg-[#5c4431] dark:bg-cyan-600 dark:hover:bg-cyan-500 dark:shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+              }`}
+            >
               {loading ? 'Vérification...' : 'Valider mon compte'}
             </button>
           </form>
         )}
 
+        <p className="mt-8 text-center text-sm font-medium text-stone-500 dark:text-slate-400">
+          Vous avez déjà un compte ?{' '}
+          <Link to="/Login" className="text-[#4a3728] dark:text-cyan-400 font-bold hover:underline">
+            Se connecter
+          </Link>
+        </p>
       </div>
     </div>
   );
