@@ -4,7 +4,6 @@ import api from '../services/api';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../context/ThemeContext';
 import {
   LayoutDashboard, Tag, LogOut, Wallet, PlusCircle, Trash2, Pencil, X, AlertCircle, CheckCircle2, ArrowRightLeft, ChevronDown, Search, Mic,
   Heart, Gamepad2, Home, Utensils, GraduationCap, Bus, ShoppingCart, Users, Dumbbell, Shirt, Apple, Briefcase, Coffee, Plane, FileText, Car, Train, Ship, Bike, Fuel, Pizza, Croissant, Beer, Wine, Tv, Film, Music, Ticket, Smartphone, Laptop, Monitor, Mouse, Sofa, Bed, Bath, Lightbulb, Stethoscope, Syringe, Pill, Baby, Cat, Dog, CreditCard, Coins, Landmark, PiggyBank, Receipt, Gift, Scissors, Wrench, Umbrella, Globe
@@ -21,8 +20,6 @@ function Transactions() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isEng = i18n.language === 'en';
-  
-  const { isDarkMode } = useTheme();
 
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -117,9 +114,7 @@ function Transactions() {
         icon: 'success', 
         title: isEng ? 'Success' : 'Succès', 
         text: isEng ? 'Fields filled by voice!' : 'Champs remplis par la voix !', 
-        toast: true, position: 'top-end', timer: 2000, showConfirmButton: false,
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917'
+        toast: true, position: 'top-end', timer: 2000, showConfirmButton: false 
       });
 
     } catch (error) {
@@ -127,9 +122,7 @@ function Transactions() {
       MySwal.fire({ 
         icon: 'error', 
         title: isEng ? 'AI Error' : 'Erreur IA', 
-        text: isEng ? 'Could not process voice request.' : 'Impossible de traiter la demande vocale.',
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917'
+        text: isEng ? 'Could not process voice request.' : 'Impossible de traiter la demande vocale.' 
       });
     } finally {
       setIsProcessingVoice(false);
@@ -144,9 +137,7 @@ function Transactions() {
       MySwal.fire({ 
         icon: 'error', 
         title: isEng ? 'Error' : 'Erreur', 
-        text: isEng ? "Your browser doesn't support voice recognition." : "Votre navigateur ne supporte pas la reconnaissance vocale.",
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917'
+        text: isEng ? "Your browser doesn't support voice recognition." : "Votre navigateur ne supporte pas la reconnaissance vocale." 
       });
       return;
     }
@@ -212,6 +203,7 @@ function Transactions() {
 
       const totalApresAjout = totalActuel + Number(formData.montant);
       const pourcentage = (totalApresAjout / budgetMax) * 100;
+      const isDark = document.documentElement.classList.contains('dark');
 
       if (totalApresAjout > budgetMax) {
         return MySwal.fire({
@@ -225,8 +217,8 @@ function Transactions() {
           cancelButtonColor: '#64748b',
           confirmButtonText: isEng ? 'Yes, force add' : 'Oui, forcer l\'ajout',
           cancelButtonText: isEng ? 'Cancel' : 'Annuler',
-          background: isDarkMode ? '#0B1120' : '#ffffff',
-          color: isDarkMode ? '#fff' : '#1c1917',
+          background: isDark ? '#0A192F' : '#ffffff',
+          color: isDark ? '#eff6ff' : '#0f172a',
           borderRadius: '1.5rem'
         }).then((result) => {
           if (result.isConfirmed) executerAjout();
@@ -244,8 +236,8 @@ function Transactions() {
           cancelButtonColor: '#64748b',
           confirmButtonText: isEng ? 'Continue' : 'Continuer',
           cancelButtonText: isEng ? 'Cancel' : 'Annuler',
-          background: isDarkMode ? '#0B1120' : '#ffffff',
-          color: isDarkMode ? '#fff' : '#1c1917',
+          background: isDark ? '#0A192F' : '#ffffff',
+          color: isDark ? '#eff6ff' : '#0f172a',
           borderRadius: '1.5rem'
         }).then((result) => {
           if (result.isConfirmed) executerAjout();
@@ -267,23 +259,11 @@ function Transactions() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editingTx.categorieId) {
-      MySwal.fire({ 
-        icon: 'warning', 
-        title: isEng ? 'Oops' : 'Oups', 
-        text: t('transactions.chooseCategoryError', 'Choisissez une catégorie.'),
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917' 
-      });
+      MySwal.fire({ icon: 'warning', title: isEng ? 'Oops' : 'Oups', text: t('transactions.chooseCategoryError', 'Choisissez une catégorie.') });
       return;
     }
     if (editingTx.date > todayString) {
-      MySwal.fire({ 
-        icon: 'warning', 
-        title: isEng ? 'Oops' : 'Oups', 
-        text: t('transactions.futureDateError', 'La date ne peut pas être dans le futur.'),
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917' 
-      });
+      MySwal.fire({ icon: 'warning', title: isEng ? 'Oops' : 'Oups', text: t('transactions.futureDateError', 'La date ne peut pas être dans le futur.') });
       return;
     }
 
@@ -291,25 +271,15 @@ function Transactions() {
       await api.put(`/transactions/${editingTx._id}`, editingTx);
       setEditingTx(null);
       fetchData();
-      MySwal.fire({ 
-        icon: 'success', 
-        title: isEng ? 'Updated!' : 'Modifiée !', 
-        toast: true, position: 'top-end', timer: 2000, showConfirmButton: false,
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917' 
-      });
+      MySwal.fire({ icon: 'success', title: isEng ? 'Updated!' : 'Modifiée !', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
     } catch (error) {
-      MySwal.fire({ 
-        icon: 'error', 
-        title: isEng ? 'Error' : 'Erreur', 
-        text: isEng ? 'Could not update transaction.' : 'Impossible de modifier la transaction.',
-        background: isDarkMode ? '#0B1120' : '#ffffff',
-        color: isDarkMode ? '#fff' : '#1c1917' 
-      });
+      MySwal.fire({ icon: 'error', title: isEng ? 'Error' : 'Erreur', text: isEng ? 'Could not update transaction.' : 'Impossible de modifier la transaction.' });
     }
   };
 
   const handleDelete = (id) => {
+    const isDark = document.documentElement.classList.contains('dark');
+
     MySwal.fire({
       title: t('transactions.deleteTitle', 'Supprimer cette opération ?'),
       text: t('transactions.deleteWarning', "Cette action est irréversible !"),
@@ -319,8 +289,8 @@ function Transactions() {
       cancelButtonColor: '#64748b',
       confirmButtonText: t('transactions.confirmBtn', 'Oui, supprimer'),
       cancelButtonText: t('transactions.cancelBtn', 'Annuler'),
-      background: isDarkMode ? '#0B1120' : '#ffffff',
-      color: isDarkMode ? '#fff' : '#1c1917',
+      background: isDark ? '#0A192F' : '#ffffff',
+      color: isDark ? '#eff6ff' : '#0f172a',
       borderRadius: '1.5rem'
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -332,16 +302,16 @@ function Transactions() {
             text: t('transactions.deletedMsg', 'Votre opération a bien été effacée.'),
             icon: 'success',
             confirmButtonColor: '#3b82f6',
-            background: isDarkMode ? '#0B1120' : '#ffffff',
-            color: isDarkMode ? '#fff' : '#1c1917'
+            background: isDark ? '#0A192F' : '#ffffff',
+            color: isDark ? '#eff6ff' : '#0f172a'
           });
         } catch (err) {
           MySwal.fire({
             title: t('transactions.errorTitle', 'Erreur'),
             text: t('transactions.errorMsg', 'Impossible de supprimer cette opération.'),
             icon: 'error',
-            background: isDarkMode ? '#0B1120' : '#ffffff',
-            color: isDarkMode ? '#fff' : '#1c1917'
+            background: isDark ? '#0A192F' : '#ffffff',
+            color: isDark ? '#eff6ff' : '#0f172a'
           });
         }
       }
@@ -369,212 +339,204 @@ function Transactions() {
 
   const handleNaviguerVersCategories = () => { navigate('/Categories'); };
 
-  if (loading) return <div className="flex h-screen items-center justify-center bg-[#FDFBF7] dark:bg-[#05050A] text-[#4a3728] dark:text-cyan-500 font-bold tracking-widest">{isEng ? 'Loading...' : 'Chargement...'}</div>;
+  if (loading) return <div className="flex h-screen items-center justify-center bg-[#f4f7fb] dark:bg-[#050B14] text-slate-800 dark:text-blue-50">Chargement...</div>;
 
   return (
     <>
-      <div className="h-screen overflow-hidden bg-[#FDFBF7] dark:bg-[#05050A] flex font-sans text-stone-800 dark:text-slate-200 transition-colors duration-500 relative">
-        
-        {/* OVERLAY DE FOND */}
-        <div className={`absolute inset-0 z-0 pointer-events-none transition-colors duration-500 ${isDarkMode ? 'bg-[#05050A]/70' : 'bg-[#FDFBF7]/40'}`}></div>
+      <div className="h-screen overflow-hidden bg-[#f4f7fb] dark:bg-[#050B14] flex font-sans text-slate-800 dark:text-blue-50 transition-colors duration-300">
+        <Sidebar />
+        <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+          <header className="h-20 shrink-0 pl-16 pr-4 md:px-8 flex justify-between items-center bg-[#f4f7fb] dark:bg-[#050B14]">
+            <h1 className="text-2xl font-bold">{t('transactions.pageTitle', 'Saisie des transactions')}</h1>
+          </header>
 
-        <div className="relative z-10 flex h-full w-full">
-          <Sidebar />
-          <div className="flex-1 flex flex-col h-full overflow-hidden">
-            
-            {/* HEADER GLASSMORPHISM */}
-            <header className="h-20 shrink-0 px-4 md:px-8 flex justify-between items-center bg-white/60 dark:bg-white/[0.02] border-b border-stone-200/50 dark:border-white/5 backdrop-blur-xl transition-colors duration-500">
-              <h1 className="text-2xl font-bold text-stone-800 dark:text-white">{t('transactions.pageTitle', 'Saisie des transactions')}</h1>
-            </header>
+          <div className="flex-1 px-4 md:px-8 pb-24 lg:pb-8 max-w-[1600px] w-full mx-auto overflow-y-auto lg:overflow-hidden flex flex-col lg:min-h-0">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:min-h-0 lg:flex-1">
 
-            <div className="flex-1 px-4 md:px-8 pt-6 pb-24 lg:pb-8 max-w-[1600px] w-full mx-auto overflow-y-auto lg:overflow-hidden flex flex-col lg:min-h-0">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:min-h-0 lg:flex-1">
+              {/* === FORMULAIRE D'AJOUT (Gauche) === */}
+              <div className="lg:col-span-5 flex flex-col lg:min-h-0">
+                <div className="bg-white dark:bg-[#0A192F] p-6 xl:p-8 rounded-[2rem] shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] border border-slate-100 dark:border-blue-500/20 flex flex-col flex-1 lg:min-h-0 relative z-20 lg:overflow-y-auto custom-scrollbar">
 
-                {/* === FORMULAIRE D'AJOUT (Gauche) === */}
-                <div className="lg:col-span-5 flex flex-col lg:min-h-0">
-                  <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xl p-6 xl:p-8 rounded-[2rem] border border-stone-200/50 dark:border-white/10 shadow-lg dark:shadow-xl flex flex-col flex-1 lg:min-h-0 relative z-20 lg:overflow-y-auto custom-scrollbar transition-colors duration-500">
-
-                    <div className="flex justify-between items-center mb-4 shrink-0">
-                      <h2 className="text-xl font-bold text-stone-800 dark:text-white">{t('transactions.newTitle', 'Nouvelle transaction')}</h2>
-                      <button
-                        type="button"
-                        onClick={handleVoiceInput}
-                        disabled={isProcessingVoice}
-                        className={`p-3 rounded-full transition-all shadow-sm dark:shadow-none flex items-center justify-center border border-stone-200/50 dark:border-white/10
-                          ${isListening ? 'bg-rose-500 border-transparent text-white animate-pulse' : 'bg-white/80 dark:bg-white/5 text-[#4a3728] dark:text-cyan-400 hover:bg-stone-100 dark:hover:bg-white/10'} 
-                          ${isProcessingVoice ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title={t('transactions.voiceBtnTitle', 'Ajouter par la voix')}
-                      >
-                        <Mic size={20} className={isListening ? 'animate-bounce' : ''} />
-                      </button>
-                    </div>
-
-                    {transcript && (
-                      <div className="mb-4 p-4 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-xl border border-stone-200/50 dark:border-white/10 flex items-center gap-3 animate-fade-in shrink-0">
-                        <div className="w-2 h-2 rounded-full bg-[#4a3728] dark:bg-cyan-400 animate-pulse"></div>
-                        <p className="text-sm font-medium text-stone-700 dark:text-slate-200 italic">
-                          "{transcript}"
-                          {isProcessingVoice && <span className="ml-1 text-[#4a3728] dark:text-cyan-400 font-bold not-italic">{isEng ? '... AI Processing' : '... Analyse par l\'IA en cours'}</span>}
-                        </p>
-                      </div>
-                    )}
-
-                    {status.message && (
-                      <div className={`p-3 rounded-xl mb-4 text-sm font-medium shrink-0 ${status.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50'}`}>
-                        {status.message}
-                      </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="space-y-4 flex flex-col justify-between">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1">
-                          <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.amount', 'Montant (DH)')}</label>
-                          <input type="number" placeholder="0.00" required step="0.01" className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition text-xl font-bold text-stone-800 dark:text-white" value={formData.montant} onChange={(e) => setFormData({ ...formData, montant: e.target.value })} />
-                        </div>
-                        <div className="w-full sm:w-1/3 flex flex-col">
-                          <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.type', 'Type')}</label>
-                          <div className="flex bg-stone-100 dark:bg-white/5 p-1 rounded-xl border border-stone-200/50 dark:border-white/5 flex-1 min-h-[48px]">
-                            <button type="button" onClick={() => setFormData({ ...formData, type: 'depense' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${formData.type === 'depense' ? 'bg-white dark:bg-white/10 text-rose-500 shadow-sm' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.expense', 'Dépense')}</button>
-                            <button type="button" onClick={() => setFormData({ ...formData, type: 'revenu' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${formData.type === 'revenu' ? 'bg-white dark:bg-white/10 text-emerald-500 shadow-sm' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.income', 'Revenu')}</button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.titleLabel', 'Titre')}</label>
-                        <input type="text" placeholder={t('transactions.titlePlaceholder', 'Ex: Déjeuner...')} required className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent outline-none text-stone-800 dark:text-white transition" value={formData.titre} onChange={(e) => setFormData({ ...formData, titre: e.target.value })} />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.date', 'Date')}</label>
-                        <div className="flex gap-2">
-                          <div className="flex-1 bg-stone-100 dark:bg-white/5 p-1 rounded-xl flex gap-1 border border-stone-200/50 dark:border-white/5">
-                            <button type="button" onClick={() => setQuickDate(0)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === todayString ? 'bg-[#4a3728] text-white dark:bg-cyan-500 dark:text-white shadow-md' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.todayBtn', 'Auj.')}</button>
-                            <button type="button" onClick={() => setQuickDate(1)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'bg-[#4a3728] text-white dark:bg-cyan-500 dark:text-white shadow-md' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.yesterdayBtn', 'Hier')}</button>
-                            <button type="button" onClick={() => setQuickDate(2)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === new Date(Date.now() - 172800000).toISOString().split('T')[0] ? 'bg-[#4a3728] text-white dark:bg-cyan-500 dark:text-white shadow-md' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.twoDaysBtn', '-2 Jours')}</button>
-                          </div>
-                          <input type="date" required max={todayString} className="px-3 py-1.5 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none text-sm text-stone-800 dark:text-white cursor-pointer focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} style={{ colorScheme: isDarkMode ? 'dark' : 'light' }} />
-                        </div>
-                      </div>
-
-                      <div className="relative z-30">
-                        <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.category', 'Catégorie')}</label>
-                        <div onClick={() => setIsCategoryOpen(!isCategoryOpen)} className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl cursor-pointer flex items-center justify-between transition hover:bg-white/80 dark:hover:bg-white/10">
-                          {selectedCategory ? (
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: selectedCategory.couleur }}><RenderIcon name={selectedCategory.icone} size={14} /></div>
-                              <span className="font-bold text-sm text-stone-800 dark:text-white">
-                                {t(`categories_list.${selectedCategory.nom}`, selectedCategory.nom)}
-                              </span>
-                            </div>
-                          ) : <span className="text-stone-500 dark:text-slate-400 text-sm">{t('transactions.chooseCategory', 'Choisir une catégorie...')}</span>}
-                          <ChevronDown size={18} className="text-stone-400 dark:text-slate-400 transition-transform" style={{ transform: isCategoryOpen ? 'rotate(180deg)' : 'none' }} />
-                        </div>
-                        {isCategoryOpen && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setIsCategoryOpen(false)}></div>
-                            <div className="absolute z-20 w-full mt-1 bg-white/95 dark:bg-[#090D1A]/95 backdrop-blur-xl border border-stone-200/50 dark:border-white/10 shadow-xl rounded-xl overflow-hidden flex flex-col">
-                              <div className="max-h-48 overflow-y-auto custom-scrollbar py-2">
-                                {categories.map(cat => (
-                                  <div key={cat._id} onClick={() => { setFormData({ ...formData, categorieId: cat._id }); setIsCategoryOpen(false); }} className="flex items-center gap-3 px-4 py-2 hover:bg-stone-50 dark:hover:bg-white/10 cursor-pointer transition">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm" style={{ backgroundColor: cat.couleur || '#cbd5e1' }}>
-                                      <RenderIcon name={cat.icone} size={16} />
-                                    </div>
-                                    <span className="font-bold text-sm text-stone-800 dark:text-slate-200">
-                                      {t(`categories_list.${cat.nom}`, cat.nom)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="p-2 border-t border-stone-100 dark:border-white/10 bg-stone-50/50 dark:bg-white/[0.02]">
-                                <div
-                                  onClick={(e) => { e.stopPropagation(); handleNaviguerVersCategories(); setIsCategoryOpen(false); }}
-                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-[#4a3728] dark:text-cyan-400 border border-stone-200/50 dark:border-white/10 font-bold rounded-lg cursor-pointer transition-colors"
-                                >
-                                  <PlusCircle size={18} />
-                                  <span className="text-sm">{t('categories.createBtn', 'Créer une catégorie')}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.descLabel', 'Description')}</label>
-                        <textarea
-                          placeholder={t('transactions.descPlaceholder', 'Ajoutez des détails')}
-                          className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition resize-none h-24 text-stone-800 dark:text-white text-sm custom-scrollbar break-all"
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        />
-                      </div>
-
-                      <button type="submit" className="mt-6 w-full bg-[#4a3728] hover:bg-[#5c4431] text-white dark:bg-cyan-500/10 dark:text-cyan-400 dark:border dark:border-cyan-500/30 dark:hover:bg-cyan-500/20 font-bold py-3.5 rounded-xl transition-all shadow-md dark:shadow-[0_0_15px_rgba(6,182,212,0.15)] text-sm">
-                        {t('transactions.addBtn', 'Ajouter')} {formData.montant ? `${formData.montant} ${isEng ? 'MAD' : 'DH'}` : ''}
-                      </button>
-                    </form>
+                  <div className="flex justify-between items-center mb-4 shrink-0">
+                    <h2 className="text-xl font-bold text-slate-700 dark:text-blue-100">{t('transactions.newTitle', 'Nouvelle transaction')}</h2>
+                    <button
+                      type="button"
+                      onClick={handleVoiceInput}
+                      disabled={isProcessingVoice}
+                      className={`p-3 rounded-full transition-all shadow-md flex items-center justify-center
+                        ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-cyan-400 hover:bg-blue-200'} 
+                        ${isProcessingVoice ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title={t('transactions.voiceBtnTitle', 'Ajouter par la voix')}
+                    >
+                      <Mic size={20} className={isListening ? 'animate-bounce' : ''} />
+                    </button>
                   </div>
-                </div>
 
-                {/* === HISTORIQUE DES TRANSACTIONS (Droite) === */}
-                <div className="lg:col-span-7 flex flex-col lg:min-h-0">
-                  <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xl p-6 xl:p-8 rounded-[2rem] border border-stone-200/50 dark:border-white/10 shadow-lg dark:shadow-xl flex flex-col flex-1 lg:min-h-0 relative z-10 min-h-[500px] lg:min-h-0 transition-colors duration-500">
+                  {transcript && (
+                    <div className="mb-4 p-4 bg-blue-50 dark:bg-[#112240] rounded-xl border border-blue-100 dark:border-blue-800/50 flex items-center gap-3 animate-fade-in shrink-0">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-blue-200 italic">
+                        "{transcript}"
+                        {isProcessingVoice && <span className="ml-1 text-blue-500 font-bold not-italic">{isEng ? '... AI Processing' : '... Analyse par l\'IA en cours'}</span>}
+                      </p>
+                    </div>
+                  )}
 
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 shrink-0">
-                      <h2 className="text-xl font-bold text-stone-800 dark:text-white">{t('transactions.history', 'Historique Complet')}</h2>
-                      <div className="relative w-full sm:w-64">
-                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 dark:text-slate-400" />
-                        <input type="text" placeholder={t('transactions.search', 'Chercher...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition text-stone-800 dark:text-white" />
+                  {status.message && (
+                    <div className={`p-3 rounded-xl mb-4 text-sm font-medium shrink-0 ${status.type === 'success' ? 'bg-emerald-50 dark:bg-[#112240]/80 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-[#112240]/80 text-rose-600 dark:text-rose-400'}`}>
+                      {status.message}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmit} className="space-y-3 flex flex-col justify-between">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex-1">
+                        <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.amount', 'Montant (DH)')}</label>
+                        <input type="number" placeholder="0.00" required step="0.01" className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold text-slate-800 dark:text-white" value={formData.montant} onChange={(e) => setFormData({ ...formData, montant: e.target.value })} />
+                      </div>
+                      <div className="w-full sm:w-1/3 flex flex-col">
+                        <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.type', 'Type')}</label>
+                        <div className="flex bg-slate-50 dark:bg-[#112240]/80 p-1 rounded-xl border border-slate-200 dark:border-[#112240] flex-1 min-h-[48px]">
+                          <button type="button" onClick={() => setFormData({ ...formData, type: 'depense' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${formData.type === 'depense' ? 'bg-white dark:bg-[#0A192F] text-rose-600 dark:text-rose-400 shadow-sm' : 'text-slate-500 dark:text-blue-400/50'}`}>{t('transactions.expense', 'Dépense')}</button>
+                          <button type="button" onClick={() => setFormData({ ...formData, type: 'revenu' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${formData.type === 'revenu' ? 'bg-white dark:bg-[#0A192F] text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-blue-400/50'}`}>{t('transactions.income', 'Revenu')}</button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-3">
-                      {filteredTransactions.map((tx) => (
-                        <div key={tx._id} className="flex flex-col px-4 py-4 bg-stone-50 dark:bg-white/5 border border-stone-100 dark:border-white/5 hover:bg-stone-100 dark:hover:bg-white/10 rounded-2xl transition-colors group shadow-sm dark:shadow-none">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="w-11 h-11 rounded-full flex items-center justify-center text-white shadow-sm shrink-0" style={{ backgroundColor: tx.categorie?.couleur || '#cbd5e1' }}>
-                                <RenderIcon name={tx.categorie?.icone || 'FileText'} size={18} />
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-[15px] text-stone-800 dark:text-white leading-tight mb-0.5">{tx.titre}</h4>
-                                <p className="text-xs text-stone-500 dark:text-slate-400 font-medium">
-                                  {tx.categorie ? t(`categories_list.${tx.categorie.nom}`, tx.categorie.nom) : t('transactions.general')} • {formaterDate(tx.date)}
-                                </p>
-                              </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.titleLabel', 'Titre')}</label>
+                      <input type="text" placeholder={t('transactions.titlePlaceholder', 'Ex: Déjeuner...')} required className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-800 dark:text-white" value={formData.titre} onChange={(e) => setFormData({ ...formData, titre: e.target.value })} />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.date', 'Date')}</label>
+                      <div className="flex gap-2">
+                        <div className="flex-1 bg-slate-50 dark:bg-[#112240]/80 p-1 rounded-xl flex gap-1 border border-slate-200 dark:border-[#112240]">
+                          <button type="button" onClick={() => setQuickDate(0)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === todayString ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-500 dark:text-blue-400/50 hover:bg-slate-200 dark:hover:bg-[#112240]'}`}>{t('transactions.todayBtn', 'Auj.')}</button>
+                          <button type="button" onClick={() => setQuickDate(1)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-500 dark:text-blue-400/50 hover:bg-slate-200 dark:hover:bg-[#112240]'}`}>{t('transactions.yesterdayBtn', 'Hier')}</button>
+                          <button type="button" onClick={() => setQuickDate(2)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${formData.date === new Date(Date.now() - 172800000).toISOString().split('T')[0] ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-500 dark:text-blue-400/50 hover:bg-slate-200 dark:hover:bg-[#112240]'}`}>{t('transactions.twoDaysBtn', '-2 Jours')}</button>
+                        </div>
+                        <input type="date" required max={todayString} className="px-3 py-1.5 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none text-sm cursor-pointer" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
+                      </div>
+                    </div>
+
+                    <div className="relative z-30">
+                      <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.category', 'Catégorie')}</label>
+                      <div onClick={() => setIsCategoryOpen(!isCategoryOpen)} className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl cursor-pointer flex items-center justify-between">
+                        {selectedCategory ? (
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: selectedCategory.couleur }}><RenderIcon name={selectedCategory.icone} size={14} /></div>
+                            <span className="font-bold text-sm">
+                              {t(`categories_list.${selectedCategory.nom}`, selectedCategory.nom)}
+                            </span>
+                          </div>
+                        ) : <span className="text-slate-400 dark:text-blue-300/70 text-sm">{t('transactions.chooseCategory', 'Choisir une catégorie...')}</span>}
+                        <ChevronDown size={18} className={`text-slate-400 dark:text-blue-300/70 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                      {isCategoryOpen && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setIsCategoryOpen(false)}></div>
+                          <div className="absolute z-20 w-full mt-1 bg-white dark:bg-[#0A192F] border border-slate-100 dark:border-[#112240] shadow-xl rounded-xl overflow-hidden flex flex-col">
+                            <div className="max-h-48 overflow-y-auto custom-scrollbar py-2">
+                              {categories.map(cat => (
+                                <div key={cat._id} onClick={() => { setFormData({ ...formData, categorieId: cat._id }); setIsCategoryOpen(false); }} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-[#112240] cursor-pointer transition">
+                                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0" style={{ backgroundColor: cat.couleur || '#cbd5e1' }}>
+                                    <RenderIcon name={cat.icone} size={16} />
+                                  </div>
+                                  <span className="font-bold text-sm">
+                                    {t(`categories_list.${cat.nom}`, cat.nom)}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
-
-                            <div className="flex items-center gap-3 shrink-0">
-                              <span className={`text-[15px] font-bold mr-1 ${tx.type === 'revenu' ? 'text-emerald-600 dark:text-emerald-400 dark:drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]' : 'text-rose-500 dark:text-rose-400 dark:drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]'}`}>{tx.type === 'revenu' ? '+' : '-'}{formatDevise(tx.montant)}</span>
-
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => handleEditClick(tx)} className="text-stone-400 dark:text-slate-400 hover:text-[#4a3728] dark:hover:text-cyan-400 transition-colors p-1.5 bg-stone-100 dark:bg-white/10 rounded-lg" title="Modifier">
-                                  <Pencil size={15} />
-                                </button>
-                                <button onClick={() => handleDelete(tx._id)} className="text-stone-400 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors p-1.5 bg-stone-100 dark:bg-white/10 rounded-lg" title="Supprimer">
-                                  <Trash2 size={15} />
-                                </button>
+                            <div className="p-2 border-t border-slate-100 dark:border-[#112240] bg-slate-50 dark:bg-[#112240]/80">
+                              <div
+                                onClick={(e) => { e.stopPropagation(); handleNaviguerVersCategories(); setIsCategoryOpen(false); }}
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-cyan-400 font-bold rounded-lg cursor-pointer transition-colors"
+                              >
+                                <PlusCircle size={18} />
+                                <span className="text-sm">{t('categories.createBtn', 'Créer une catégorie')}</span>
                               </div>
                             </div>
                           </div>
-
-                          {tx.description && (
-                            <div className="mt-3 ml-[3.75rem] bg-stone-50/80 dark:bg-white/[0.02] px-3 py-2.5 rounded-xl border border-stone-100 dark:border-white/5">
-                              <p className="text-[12px] text-stone-600 dark:text-slate-300 italic leading-snug">"{tx.description}"</p>
-                            </div>
-                          )}
-
-                        </div>
-                      ))}
-                      {filteredTransactions.length === 0 && (
-                        <div className="text-center py-12 text-stone-400 dark:text-slate-500 italic"><p>{t('transactions.noTransactions', 'Aucune transaction trouvée.')}</p></div>
+                        </>
                       )}
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.descLabel', 'Description')}</label>
+                      <textarea
+                        placeholder={t('transactions.descPlaceholder', 'Ajoutez des détails')}
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition resize-none h-24 text-slate-800 dark:text-white text-sm custom-scrollbar break-all"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      />
+                    </div>
+
+                    <button type="submit" className="mt-6 w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg text-sm">
+                      {t('transactions.addBtn', 'Ajouter')} {formData.montant ? `${formData.montant} ${isEng ? 'MAD' : 'DH'}` : ''}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {/* === HISTORIQUE DES TRANSACTIONS (Droite) === */}
+              <div className="lg:col-span-7 flex flex-col lg:min-h-0">
+                <div className="bg-white dark:bg-[#0A192F] p-8 rounded-[2rem] shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.05)] border border-slate-100 dark:border-blue-500/20 flex flex-col flex-1 lg:min-h-0 relative z-10 min-h-[500px] lg:min-h-0">
+
+                  <div className="flex justify-between items-center mb-8 gap-4 shrink-0">
+                    <h2 className="text-xl font-bold text-slate-700 dark:text-blue-100">{t('transactions.history', 'Historique Complet')}</h2>
+                    <div className="relative w-64">
+                      <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-blue-300/70" />
+                      <input type="text" placeholder={t('transactions.search', 'Chercher...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-2.5">
+                    {filteredTransactions.map((tx) => (
+                      <div key={tx._id} className="flex flex-col px-4 py-3.5 border border-slate-100 dark:border-[#112240] hover:border-blue-200 dark:hover:border-blue-500/50 rounded-xl transition group bg-white dark:bg-[#0A192F]">
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm shrink-0" style={{ backgroundColor: tx.categorie?.couleur || '#cbd5e1' }}>
+                              <RenderIcon name={tx.categorie?.icone || 'FileText'} size={18} />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-base leading-tight">{tx.titre}</h4>
+                              <p className="text-xs text-slate-400 dark:text-blue-300/70">
+                                {tx.categorie ? t(`categories_list.${tx.categorie.nom}`, tx.categorie.nom) : t('transactions.general')}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`text-base font-bold mr-1 ${tx.type === 'revenu' ? 'text-emerald-500' : 'text-rose-600'}`}>{tx.type === 'revenu' ? '+' : '-'}{formatDevise(tx.montant)}</span>
+
+                            <button onClick={() => handleEditClick(tx)} className="text-slate-300 dark:text-blue-200 hover:text-blue-500 dark:hover:text-cyan-400 transition opacity-0 group-hover:opacity-100 p-1.5" title="Modifier">
+                              <Pencil size={16} />
+                            </button>
+
+                            <button onClick={() => handleDelete(tx._id)} className="text-slate-300 dark:text-blue-200 hover:text-rose-500 dark:hover:text-rose-400 transition opacity-0 group-hover:opacity-100 p-1.5" title="Supprimer">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {tx.description && (
+                          <div className="mt-2.5 ml-[3.25rem] bg-slate-50 dark:bg-[#112240]/80 px-3 py-2 rounded-lg border border-slate-100 dark:border-[#112240]">
+                            <p className="text-[12px] text-slate-600 dark:text-blue-200 italic leading-snug">"{tx.description}"</p>
+                          </div>
+                        )}
+
+                      </div>
+                    ))}
+                    {filteredTransactions.length === 0 && (
+                      <div className="text-center py-12 text-slate-400 dark:text-blue-300/70"><p>{t('transactions.noTransactions', 'Aucune transaction trouvée.')}</p></div>
+                    )}
                   </div>
                 </div>
-
               </div>
+
             </div>
           </div>
         </div>
@@ -582,71 +544,71 @@ function Transactions() {
 
       {/* === MODALE DE MODIFICATION === */}
       {editingTx && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/60 dark:bg-[#05050A]/80 backdrop-blur-md p-4 animate-fade-in">
-          <div className="bg-white/95 dark:bg-[#090D1A]/95 backdrop-blur-xl w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-stone-200/50 dark:border-white/10">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white dark:bg-[#0A192F] w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-transparent dark:border-blue-500/20">
 
-            <div className="px-6 py-5 border-b border-stone-200/50 dark:border-white/5 flex justify-between items-center shrink-0">
-              <h2 className="text-xl font-bold text-stone-800 dark:text-white">{isEng ? 'Edit Transaction' : 'Modifier la transaction'}</h2>
-              <button onClick={() => setEditingTx(null)} className="p-2 text-stone-400 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 bg-stone-100 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/20 rounded-full transition-colors">
+            <div className="px-6 py-5 border-b border-slate-100 dark:border-[#112240] flex justify-between items-center shrink-0">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">{isEng ? 'Edit Transaction' : 'Modifier la transaction'}</h2>
+              <button onClick={() => setEditingTx(null)} className="p-2 text-slate-400 dark:text-blue-300/70 hover:text-rose-500 bg-slate-50 dark:bg-[#112240] hover:bg-rose-50 dark:hover:bg-rose-500/20 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
-              <form id="edit-form" onSubmit={handleUpdate} className="space-y-5">
+              <form id="edit-form" onSubmit={handleUpdate} className="space-y-4">
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.amount', 'Montant (DH)')}</label>
-                    <input type="number" required step="0.01" className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition text-xl font-bold text-stone-800 dark:text-white" value={editingTx.montant} onChange={(e) => setEditingTx({ ...editingTx, montant: e.target.value })} />
+                    <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.amount', 'Montant (DH)')}</label>
+                    <input type="number" required step="0.01" className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold text-slate-800 dark:text-white" value={editingTx.montant} onChange={(e) => setEditingTx({ ...editingTx, montant: e.target.value })} />
                   </div>
                   <div className="w-1/3 flex flex-col">
-                    <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.type', 'Type')}</label>
-                    <div className="flex bg-stone-100 dark:bg-white/5 p-1 rounded-xl border border-stone-200/50 dark:border-white/5 flex-1 min-h-[48px]">
-                      <button type="button" onClick={() => setEditingTx({ ...editingTx, type: 'depense' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${editingTx.type === 'depense' ? 'bg-white dark:bg-white/10 text-rose-500 shadow-sm' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.expense', 'Dépense')}</button>
-                      <button type="button" onClick={() => setEditingTx({ ...editingTx, type: 'revenu' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${editingTx.type === 'revenu' ? 'bg-white dark:bg-white/10 text-emerald-500 shadow-sm' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.income', 'Revenu')}</button>
+                    <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.type', 'Type')}</label>
+                    <div className="flex bg-slate-50 dark:bg-[#112240]/80 p-1 rounded-xl border border-slate-200 dark:border-[#112240] flex-1 min-h-[48px]">
+                      <button type="button" onClick={() => setEditingTx({ ...editingTx, type: 'depense' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${editingTx.type === 'depense' ? 'bg-white dark:bg-[#0A192F] text-rose-600 dark:text-rose-400 shadow-sm' : 'text-slate-500 dark:text-blue-400/50'}`}>{t('transactions.expense', 'Dépense')}</button>
+                      <button type="button" onClick={() => setEditingTx({ ...editingTx, type: 'revenu' })} className={`flex-1 rounded-lg text-sm font-bold transition-all ${editingTx.type === 'revenu' ? 'bg-white dark:bg-[#0A192F] text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-blue-400/50'}`}>{t('transactions.income', 'Revenu')}</button>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.titleLabel', 'Titre')}</label>
-                  <input type="text" required className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent outline-none text-stone-800 dark:text-white transition" value={editingTx.titre} onChange={(e) => setEditingTx({ ...editingTx, titre: e.target.value })} />
+                  <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.titleLabel', 'Titre')}</label>
+                  <input type="text" required className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-800 dark:text-white" value={editingTx.titre} onChange={(e) => setEditingTx({ ...editingTx, titre: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.date', 'Date')}</label>
+                  <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.date', 'Date')}</label>
                   <div className="flex gap-2">
-                    <div className="flex-1 bg-stone-100 dark:bg-white/5 p-1 rounded-xl flex gap-1 border border-stone-200/50 dark:border-white/5">
-                      <button type="button" onClick={() => setEditQuickDate(0)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${editingTx.date === todayString ? 'bg-[#4a3728] text-white dark:bg-cyan-500 dark:text-white shadow-md' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.todayBtn', 'Auj.')}</button>
-                      <button type="button" onClick={() => setEditQuickDate(1)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${editingTx.date === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'bg-[#4a3728] text-white dark:bg-cyan-500 dark:text-white shadow-md' : 'text-stone-500 dark:text-slate-400 hover:bg-stone-200 dark:hover:bg-white/5'}`}>{t('transactions.yesterdayBtn', 'Hier')}</button>
+                    <div className="flex-1 bg-slate-50 dark:bg-[#112240]/80 p-1 rounded-xl flex gap-1 border border-slate-200 dark:border-[#112240]">
+                      <button type="button" onClick={() => setEditQuickDate(0)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${editingTx.date === todayString ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-500 dark:text-blue-400/50 hover:bg-slate-200 dark:hover:bg-[#112240]'}`}>{t('transactions.todayBtn', 'Auj.')}</button>
+                      <button type="button" onClick={() => setEditQuickDate(1)} className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition ${editingTx.date === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-500 dark:text-blue-400/50 hover:bg-slate-200 dark:hover:bg-[#112240]'}`}>{t('transactions.yesterdayBtn', 'Hier')}</button>
                     </div>
-                    <input type="date" required max={todayString} className="px-3 py-1.5 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none text-sm text-stone-800 dark:text-white cursor-pointer focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition" value={editingTx.date} onChange={(e) => setEditingTx({ ...editingTx, date: e.target.value })} style={{ colorScheme: isDarkMode ? 'dark' : 'light' }} />
+                    <input type="date" required max={todayString} className="px-3 py-1.5 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none text-sm cursor-pointer" value={editingTx.date} onChange={(e) => setEditingTx({ ...editingTx, date: e.target.value })} />
                   </div>
                 </div>
 
                 <div className="relative z-30">
-                  <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.category', 'Catégorie')}</label>
-                  <div onClick={() => setIsEditCategoryOpen(!isEditCategoryOpen)} className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl cursor-pointer flex items-center justify-between transition hover:bg-white/80 dark:hover:bg-white/10">
+                  <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.category', 'Catégorie')}</label>
+                  <div onClick={() => setIsEditCategoryOpen(!isEditCategoryOpen)} className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl cursor-pointer flex items-center justify-between">
                     {editSelectedCategory ? (
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: editSelectedCategory.couleur }}><RenderIcon name={editSelectedCategory.icone} size={14} /></div>
-                        <span className="font-bold text-sm text-stone-800 dark:text-white">
+                        <span className="font-bold text-sm">
                           {t(`categories_list.${editSelectedCategory.nom}`, editSelectedCategory.nom)}
                         </span>
                       </div>
-                    ) : <span className="text-stone-500 dark:text-slate-400 text-sm">{t('transactions.chooseCategory', 'Choisir une catégorie...')}</span>}
-                    <ChevronDown size={18} className="text-stone-400 dark:text-slate-400 transition-transform" style={{ transform: isEditCategoryOpen ? 'rotate(180deg)' : 'none' }} />
+                    ) : <span className="text-slate-400 dark:text-blue-300/70 text-sm">{t('transactions.chooseCategory', 'Choisir une catégorie...')}</span>}
+                    <ChevronDown size={18} className={`text-slate-400 dark:text-blue-300/70 transition-transform ${isEditCategoryOpen ? 'rotate-180' : ''}`} />
                   </div>
 
                   {isEditCategoryOpen && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setIsEditCategoryOpen(false)}></div>
-                      <div className="absolute z-20 w-full mt-1 bg-white/95 dark:bg-[#090D1A]/95 backdrop-blur-xl border border-stone-200/50 dark:border-white/10 shadow-xl rounded-xl overflow-hidden flex flex-col">
+                      <div className="absolute z-20 w-full mt-1 bg-white dark:bg-[#0A192F] border border-slate-100 dark:border-[#112240] shadow-xl rounded-xl overflow-hidden flex flex-col">
                         <div className="max-h-48 overflow-y-auto custom-scrollbar py-2">
                           {categories.map(cat => (
-                            <div key={cat._id} onClick={() => { setEditingTx({ ...editingTx, categorieId: cat._id }); setIsEditCategoryOpen(false); }} className="flex items-center gap-3 px-4 py-2 hover:bg-stone-50 dark:hover:bg-white/10 cursor-pointer transition">
-                              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm" style={{ backgroundColor: cat.couleur || '#cbd5e1' }}><RenderIcon name={cat.icone} size={16} /></div>
-                              <span className="font-bold text-sm text-stone-800 dark:text-slate-200">{t(`categories_list.${cat.nom}`, cat.nom)}</span>
+                            <div key={cat._id} onClick={() => { setEditingTx({ ...editingTx, categorieId: cat._id }); setIsEditCategoryOpen(false); }} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-[#112240] cursor-pointer transition">
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0" style={{ backgroundColor: cat.couleur || '#cbd5e1' }}><RenderIcon name={cat.icone} size={16} /></div>
+                              <span className="font-bold text-sm">{t(`categories_list.${cat.nom}`, cat.nom)}</span>
                             </div>
                           ))}
                         </div>
@@ -656,9 +618,9 @@ function Transactions() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-500 dark:text-white/60 uppercase tracking-wide mb-1.5">{t('transactions.descLabel', 'Description')}</label>
+                  <label className="block text-[11px] font-bold text-slate-400 dark:text-blue-300/70 uppercase mb-1.5">{t('transactions.descLabel', 'Description')}</label>
                   <textarea
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-white/5 border border-stone-200/50 dark:border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-[#4a3728] dark:focus:ring-cyan-500 focus:border-transparent transition resize-none h-24 text-stone-800 dark:text-white text-sm custom-scrollbar break-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-blue-900/50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition resize-none h-24 text-slate-800 dark:text-white text-sm custom-scrollbar break-all"
                     value={editingTx.description}
                     onChange={(e) => setEditingTx({ ...editingTx, description: e.target.value })}
                   />
@@ -666,8 +628,8 @@ function Transactions() {
               </form>
             </div>
 
-            <div className="p-6 border-t border-stone-200/50 dark:border-white/5 shrink-0">
-              <button form="edit-form" type="submit" className="w-full bg-[#4a3728] hover:bg-[#5c4431] text-white dark:bg-cyan-500/10 dark:text-cyan-400 dark:border dark:border-cyan-500/30 dark:hover:bg-cyan-500/20 font-bold py-3.5 rounded-xl transition-all shadow-md dark:shadow-[0_0_15px_rgba(6,182,212,0.15)] text-sm">
+            <div className="p-6 border-t border-slate-100 dark:border-[#112240] shrink-0">
+              <button form="edit-form" type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-lg text-sm">
                 {isEng ? 'Save Changes' : 'Enregistrer les modifications'}
               </button>
             </div>

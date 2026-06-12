@@ -1,32 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Tag, ArrowRightLeft, Menu, X, Wallet } from 'lucide-react'; 
+import { LayoutDashboard, Tag, ArrowRightLeft, Menu, X, ChevronLeft, ChevronRight, Wallet, Bell, LogOut } from 'lucide-react'; 
 import { useTranslation } from 'react-i18next'; 
 import api from '../services/api'; 
+import Swal from 'sweetalert2';
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation(); 
-  const { t } = useTranslation(); 
+  const { t, i18n } = useTranslation(); 
+  const isEng = i18n.language === 'en';
   
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isActive = (path) => location.pathname === path;
-
   const [user, setUser] = useState({ nom: 'Chargement...', email: '', avatar: '' });
 
   const fetchCurrentUser = async () => {
     try {
       const res = await api.get('/utilisateurs/me'); 
-      const userData = {
-        nom: res.data.nom || 'Utilisateur',
-        email: res.data.email,
-        avatar: res.data.avatar || '' 
-      };
+      const userData = { nom: res.data.nom || 'Utilisateur', email: res.data.email, avatar: res.data.avatar || '' };
       setUser(userData);
       localStorage.setItem('utilisateur', JSON.stringify(userData)); 
     } catch (err) {
-      console.error("Erreur récupération utilisateur", err);
       const storedUser = localStorage.getItem('utilisateur');
       if (storedUser) setUser(JSON.parse(storedUser));
     }
@@ -38,7 +35,6 @@ function Sidebar() {
       const storedUser = localStorage.getItem('utilisateur');
       if (storedUser) setUser(JSON.parse(storedUser));
     };
-    
     window.addEventListener('profilMisAJour', handleProfileUpdate);
     return () => window.removeEventListener('profilMisAJour', handleProfileUpdate);
   }, []);
@@ -48,97 +44,94 @@ function Sidebar() {
     setIsOpen(false);
   };
 
+  const handleLogout = () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    Swal.fire({
+      title: t('profile.logoutTitle', 'Se déconnecter ?'), 
+      text: t('profile.logoutText', 'Voulez-vous vraiment fermer votre session ?'), 
+      icon: 'question',
+      showCancelButton: true, 
+      confirmButtonColor: '#f43f5e', 
+      cancelButtonColor: '#64748b',
+      confirmButtonText: t('profile.logoutConfirm', 'Oui, déconnexion'), 
+      cancelButtonText: t('profile.cancelBtn', 'Annuler'), 
+      background: isDark ? '#0A192F' : '#ffffff',
+      color: isDark ? '#eff6ff' : '#0f172a',
+      borderRadius: '1.5rem'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('token'); 
+        localStorage.removeItem('utilisateur'); 
+        window.location.href = '/Login';
+      }
+    });
+  };
+
   return (
     <>
-      {/* BOUTON BURGER MOBILE ET TABLETTE (Adaptatif) */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-5 left-4 z-50 p-2.5 bg-white/80 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl backdrop-blur-md text-stone-800 dark:text-white transition-colors duration-500 shadow-sm dark:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
-      >
+      {/* BOUTON HAMBURGER MOBILE */}
+      <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden fixed top-5 left-4 z-50 p-2 bg-white/80 backdrop-blur-md dark:bg-[#0A192F]/80 rounded-xl shadow-lg shadow-indigo-500/10 text-slate-800 dark:text-white border border-slate-200 dark:border-blue-500/30 transition-all">
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* OVERLAY SOMBRE MOBILE (Adaptatif) */}
-      {isOpen && (
-        <div 
-          onClick={() => setIsOpen(false)} 
-          className="lg:hidden fixed inset-0 bg-stone-900/40 dark:bg-[#05050A]/80 backdrop-blur-sm z-40 transition-opacity"
-        ></div>
-      )}
+      {/* OVERLAY SOMBRE MOBILE */}
+      {isOpen && <div onClick={() => setIsOpen(false)} className="lg:hidden fixed inset-0 bg-slate-900/40 dark:bg-[#050B14]/80 backdrop-blur-sm z-40 transition-opacity"></div>}
 
-      {/* CONTENEUR SIDEBAR : NEO-GLASSMORPHISM (Clair / Sombre) */}
-      <div className={`fixed inset-y-0 left-0 z-40 w-68 bg-white/60 dark:bg-[#05050A]/20 backdrop-blur-xl border-r border-stone-200/50 dark:border-white/5 shadow-xl dark:shadow-2xl dark:shadow-black/50 flex flex-col transition-all duration-500 lg:static lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* 💡 LA CORRECTION EST ICI : Remplacement de "relative fixed" par "fixed lg:relative" */}
+      <div className={`fixed lg:relative inset-y-0 left-0 z-40 bg-white/95 dark:bg-[#0A192F]/95 backdrop-blur-xl border-r border-slate-100 dark:border-blue-500/20 shadow-2xl flex flex-col transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${isCollapsed ? 'w-20' : 'w-64'}`}>
         
-        {/* EN-TÊTE SIDEBAR : LOGO ET NOM APPLICATION */}
-        <div className="h-20 shrink-0 px-6 flex items-center border-b border-stone-200/50 dark:border-white/5 mt-14 lg:mt-0 transition-colors duration-500">
-          {/* Logo Cuivre/Or en Clair -> Néon Cyan/Violet en Sombre */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4a3728] to-[#8b5a2b] dark:from-cyan-400 dark:to-purple-600 flex items-center justify-center shadow-md dark:shadow-[0_0_15px_rgba(6,182,212,0.4)] mr-3 transition-colors duration-500">
-            <Wallet className="text-white" size={20} />
-          </div>
-          <span className="font-black text-2xl tracking-tight text-stone-800 dark:text-white transition-colors duration-500">MyBudget</span>
-        </div>
+        <button onClick={() => setIsCollapsed(!isCollapsed)} className="hidden lg:flex absolute -right-3.5 top-10 w-7 h-7 bg-white dark:bg-[#050B14] border border-slate-200 dark:border-cyan-500/50 rounded-full items-center justify-center text-slate-500 dark:text-cyan-400 cursor-pointer hover:scale-110 shadow-md transition-all z-50 group">
+          {isCollapsed ? <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" /> : <ChevronLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />}
+        </button>
 
-        {/* WIDGET UTILISATEUR EN EFFET VERRE SÉLECTIONNABLE */}
-        <div 
-          onClick={() => handleNavigate('/Profile')} 
-          title={t('profile.pageTitle', 'Accéder à mon Profil')}
-          className="px-5 py-4 mx-4 mt-6 mb-6 bg-white/50 dark:bg-white/[0.02] hover:bg-white/80 dark:hover:bg-white/[0.06] rounded-2xl border border-stone-200/50 dark:border-white/5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] group shrink-0"
-        >
-          <div className="flex items-center gap-3">
-            <div className="relative shrink-0">
-              <img 
-                src={user.avatar || `https://ui-avatars.com/api/?name=${user.nom.replace(' ', '+')}&background=eff6ff&color=2563eb&bold=true`} 
-                alt="Avatar" 
-                className="w-11 h-11 rounded-full border-2 border-white dark:border-white/10 shadow-md group-hover:scale-105 transition-transform duration-300 object-cover" 
-              />
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#05050A] rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-            </div>
-            <div className="overflow-hidden flex-1">
-              <h4 className="text-sm font-bold text-stone-800 dark:text-slate-200 truncate group-hover:text-[#4a3728] dark:group-hover:text-cyan-400 transition-colors duration-300">
-                {user.nom}
-              </h4>
-              <p className="text-[11px] text-stone-500 dark:text-slate-400 truncate w-full block transition-colors duration-300">
-                {user.email || "Chargement..."}
-              </p>
-            </div>
+        <div onClick={() => handleNavigate('/Profile')} className={`mx-4 mt-20 lg:mt-8 mb-4 bg-slate-50 dark:bg-[#112240]/60 hover:bg-white dark:hover:bg-[#112240] rounded-2xl border border-slate-100 dark:border-blue-500/20 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group shrink-0 flex items-center ${isCollapsed ? 'px-1 py-4 justify-center' : 'px-6 py-5 gap-3'}`}>
+          <div className="relative shrink-0">
+            <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.nom.replace(' ', '+')}&background=eff6ff&color=2563eb&bold=true`} alt="Avatar" className={`${isCollapsed ? 'w-10 h-10' : 'w-11 h-11'} rounded-full border-2 border-white dark:border-[#0A192F] shadow-md group-hover:scale-105 transition-all duration-300 object-cover`} />
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#0A192F] rounded-full shadow-sm"></div>
           </div>
+          {!isCollapsed && (
+            <div className="overflow-hidden flex-1 transition-opacity duration-300 delay-100">
+              <h4 className="text-sm font-bold text-slate-800 dark:text-blue-50 truncate group-hover:text-cyan-400 transition-colors">{user.nom}</h4>
+              <p className="text-[11px] text-slate-500 dark:text-blue-200/60 truncate">{user.email || "Chargement..."}</p>
+            </div>
+          )}
         </div>
         
-        {/* MENU PRINCIPAL DE NAVIGATION (Marron en clair, Néon en sombre) */}
-        <nav className="flex-1 px-4 flex flex-col overflow-y-auto custom-scrollbar gap-2">
-          <div 
-            onClick={() => handleNavigate('/Dashboard')} 
-            className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-sm cursor-pointer transition-all duration-300 ${
-              isActive('/Dashboard') 
-                ? 'bg-stone-100 text-[#4a3728] border border-stone-200/80 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20 dark:shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]' 
-                : 'text-stone-500 hover:bg-white/50 hover:text-stone-800 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white hover:translate-x-1'
-            }`}
-          >
-            <LayoutDashboard size={18} /> {t('sidebar.dashboard', 'Dashboard')}
-          </div>
-          
-          <div 
-            onClick={() => handleNavigate('/Transactions')} 
-            className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-sm cursor-pointer transition-all duration-300 ${
-              isActive('/Transactions') 
-                ? 'bg-stone-100 text-[#4a3728] border border-stone-200/80 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20 dark:shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]' 
-                : 'text-stone-500 hover:bg-white/50 hover:text-stone-800 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white hover:translate-x-1'
-            }`}
-          >
-            <ArrowRightLeft size={18} /> {t('sidebar.transactions', 'Transactions')}
-          </div>
-          
-          <div 
-            onClick={() => handleNavigate('/Categories')} 
-            className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-sm cursor-pointer transition-all duration-300 ${
-              isActive('/Categories') 
-                ? 'bg-stone-100 text-[#4a3728] border border-stone-200/80 shadow-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20 dark:shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.3)]' 
-                : 'text-stone-500 hover:bg-white/50 hover:text-stone-800 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white hover:translate-x-1'
-            }`}
-          >
-            <Tag size={18} /> {t('sidebar.categories', 'Catégories')}
+        <nav className="flex-1 px-4 flex flex-col overflow-y-auto custom-scrollbar">
+          <div className="space-y-2">
+            <div onClick={() => handleNavigate('/Dashboard')} className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 ${isActive('/Dashboard') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-600/20 dark:to-cyan-600/20 text-blue-600 dark:text-cyan-400 shadow-sm border border-cyan-500/30' : 'text-slate-500 dark:text-blue-200/60 hover:bg-[#112240] hover:translate-x-1 hover:text-cyan-300'}`}>
+              <LayoutDashboard size={isCollapsed ? 22 : 18} className="shrink-0 transition-all duration-300" /> {!isCollapsed && <span className="truncate">{t('sidebar.dashboard', 'Dashboard')}</span>}
+            </div>
+            
+            <div onClick={() => handleNavigate('/Budgets')} className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 ${isActive('/Budgets') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-600/20 dark:to-cyan-600/20 text-blue-600 dark:text-cyan-400 shadow-sm border border-cyan-500/30' : 'text-slate-500 dark:text-blue-200/60 hover:bg-[#112240] hover:translate-x-1 hover:text-cyan-300'}`}>
+              <Wallet size={isCollapsed ? 22 : 18} className="shrink-0 transition-all duration-300" /> {!isCollapsed && <span className="truncate">{t('sidebar.budgets', 'Budgets')}</span>}
+            </div>
+
+            <div onClick={() => handleNavigate('/Notifications')} className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 ${isActive('/Notifications') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-600/20 dark:to-cyan-600/20 text-blue-600 dark:text-cyan-400 shadow-sm border border-cyan-500/30' : 'text-slate-500 dark:text-blue-200/60 hover:bg-[#112240] hover:translate-x-1 hover:text-cyan-300'}`}>
+              <Bell size={isCollapsed ? 22 : 18} className="shrink-0 transition-all duration-300" /> {!isCollapsed && <span className="truncate">{isEng ? 'Notifications' : 'Notifications'}</span>}
+            </div>
+            
+            <div onClick={() => handleNavigate('/Transactions')} className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 ${isActive('/Transactions') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-600/20 dark:to-cyan-600/20 text-blue-600 dark:text-cyan-400 shadow-sm border border-cyan-500/30' : 'text-slate-500 dark:text-blue-200/60 hover:bg-[#112240] hover:translate-x-1 hover:text-cyan-300'}`}>
+              <ArrowRightLeft size={isCollapsed ? 22 : 18} className="shrink-0 transition-all duration-300" /> {!isCollapsed && <span className="truncate">{t('sidebar.transactions', 'Transactions')}</span>}
+            </div>
+            
+            <div onClick={() => handleNavigate('/Categories')} className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 ${isActive('/Categories') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-600/20 dark:to-cyan-600/20 text-blue-600 dark:text-cyan-400 shadow-sm border border-cyan-500/30' : 'text-slate-500 dark:text-blue-200/60 hover:bg-[#112240] hover:translate-x-1 hover:text-cyan-300'}`}>
+              <Tag size={isCollapsed ? 22 : 18} className="shrink-0 transition-all duration-300" /> {!isCollapsed && <span className="truncate">{t('sidebar.categories', 'Catégories')}</span>}
+            </div>
           </div>
         </nav>
+
+        <div className="p-4 border-t border-slate-100 dark:border-blue-500/20 shrink-0">
+          <div 
+            onClick={handleLogout}
+            title={isCollapsed ? t('profile.logout', 'Déconnexion') : ''}
+            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3.5 rounded-xl font-bold cursor-pointer transition-all duration-300 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 dark:text-rose-400`}
+          >
+            <LogOut size={isCollapsed ? 22 : 18} className="shrink-0" />
+            {!isCollapsed && <span className="truncate">{t('profile.logout', 'Déconnexion')}</span>}
+          </div>
+        </div>
+
       </div>
     </>
   );

@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Initialisation du thème (vérifie le localStorage ou les préférences système)
+  // initialisation du theme (verifie le localStorage ou les preferences systeme)
   useEffect(() => {
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
@@ -16,7 +16,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // Fonction pour basculer entre le mode clair et sombre
+  // fct pour basculer entre le mode clair et sombre
   const toggleDarkMode = () => {
     if (isDarkMode) {
       document.documentElement.classList.remove('dark');
@@ -36,5 +36,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// Hook personnalisé pour utiliser le thème facilement
+// hook personnalise pour utiliser le theme facilement
 export const useTheme = () => useContext(ThemeContext);
